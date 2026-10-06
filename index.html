@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CMAS 2026 Travel Distance Calculator</title>
+<style>
+  :root { --bg:#f4f4f4; --card:#fff; --ink:#222; --muted:#666; --line:#ccc; --accent:#000; --ok:#14683a; --err:#a11; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#1b1b1b; --card:#262626; --ink:#eee; --muted:#aaa; --line:#444; --accent:#fff; --ok:#6fd49a; --err:#ff8a8a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui, sans-serif; }
+  main { max-width:680px; margin:0 auto; padding:24px 16px 48px; }
+  h1 { font-size:22px; margin:0 0 6px; }
+  p.lead { color:var(--muted); margin:0 0 20px; }
+  .leg { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:16px; margin-bottom:14px; }
+  .leg h2 { font-size:15px; margin:0 0 10px; display:flex; justify-content:space-between; align-items:center; }
+  label { display:block; font-weight:600; font-size:13px; margin:10px 0 4px; }
+  input, select { width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:4px; background:var(--card); color:var(--ink); font:inherit; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:520px) { .row { grid-template-columns:1fr; } }
+  button { font:inherit; cursor:pointer; border-radius:4px; padding:9px 16px; border:1px solid var(--accent); background:var(--accent); color:var(--bg); }
+  button.ghost { background:transparent; color:var(--ink); border-color:var(--line); }
+  button:disabled { opacity:.5; cursor:wait; }
+  .actions { display:flex; gap:10px; flex-wrap:wrap; margin:6px 0 18px; }
+  .result { margin-top:12px; font-weight:600; }
+  .result.ok { color:var(--ok); } .result.err { color:var(--err); }
+  .note { font-size:12px; color:var(--muted); font-weight:400; }
+  .total { background:var(--card); border:2px solid var(--accent); border-radius:8px; padding:16px; display:none; }
+  .total .big { font-size:28px; font-weight:700; }
+  .rm { background:none; border:none; color:var(--muted); padding:0 4px; font-size:13px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Travel distance calculator</h1>
+  <p class="lead">Enter where each leg of your journey started and ended. We'll work out the distance in km so you can copy it into the Carbon Markets Africa Summit 2026 survey. One block per journey, matching the "Journey" sections on the survey.</p>
+
+  <div id="legs"></div>
+
+  <div class="actions">
+    <button class="ghost" id="add">+ Add journey</button>
+    <button id="calc">Calculate distances</button>
+  </div>
+
+  <div class="total" id="total" aria-live="polite"></div>
+  <p class="note">Air and ferry: straight-line (great-circle) distance. Vehicle: driving route distance. Rail: estimated from the driving route, since no free rail routing exists. Distances are one-way. Place lookups use OpenStreetMap; routing uses the OSRM public server.</p>
+</main>
+
+<script>
+// Optional: set a default destination for a specific event. Leave blank for the general, reusable form.
+const VENUE_DEFAULT = "";
+
+const legsEl = document.getElementById("legs");
+let legCount = 0;
+
+function addLeg(prefillTo) {
+  legCount++;
+  const n = legCount;
+  const d = document.createElement("div");
+  d.className = "leg";
+  d.dataset.n = n;
+  d.innerHTML = `
+    <h2><span>Journey ${n}</span>${n > 1 ? '<button class="rm" type="button">Remove</button>' : ""}</h2>
+    <label>Mode of transport</label>
+    <select class="mode">
+      <option value="air">Air</option><option value="rail">Rail</option>
+      <option value="vehicle">Vehicle</option><option value="ferry">Ferry</option>
+    </select>
+    <div class="row">
+      <div><label>From (city, country)</label><input class="from" placeholder="e.g. Lagos, Nigeria"></div>
+      <div><label>To (city, country)</label><input class="to" placeholder="e.g. Nairobi, Kenya" value="${prefillTo || ""}"></div>
+    </div>
+    <div class="result"></div>`;
+  const rm = d.querySelector(".rm");
+  if (rm) rm.onclick = () => { d.remove(); renumber(); };
+  legsEl.appendChild(d);
+}
+
+function renumber() {
+  [...legsEl.children].forEach((d, i) => d.querySelector("h2 span").textContent = "Journey " + (i + 1));
+}
+
+const geoCache = {};
+async function geocode(q) {
+  if (geoCache[q]) return geoCache[q];
+  const r = await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" + encodeURIComponent(q));
+  if (!r.ok) throw new Error("Place lookup failed");
+  const j = await r.json();
+  if (!j.length) throw new Error(`Couldn't find "${q}". Try "City, Country".`);
+  return (geoCache[q] = { lat: +j[0].lat, lon: +j[0].lon });
+}
+
+function haversine(a, b) {
+  const R = 6371, rad = x => x * Math.PI / 180;
+  const dLat = rad(b.lat - a.lat), dLon = rad(b.lon - a.lon);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+async function drivingKm(a, b) {
+  const r = await fetch(`https://router.project-osrm.org/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=false`);
+  if (!r.ok) throw new Error("Routing failed");
+  const j = await r.json();
+  if (!j.routes || !j.routes.length) throw new Error("No driving route found between these places.");
+  return j.routes[0].distance / 1000;
+}
+
+async function legKm(mode, from, to) {
+  const a = await geocode(from);
+  await new Promise(r => setTimeout(r, 1100)); // respect Nominatim 1 req/sec
+  const b = await geocode(to);
+  if (mode === "air" || mode === "ferry") return haversine(a, b);
+  const km = await drivingKm(a, b);
+  return mode === "rail" ? km * 1.05 : km;
+}
+
+document.getElementById("add").onclick = () => {
+  const prev = legsEl.lastElementChild;
+  const prevTo = prev ? prev.querySelector(".to").value : "";
+  addLeg();
+  legsEl.lastElementChild.querySelector(".from").value = prevTo;
+};
+document.getElementById("calc").onclick = async function () {
+  const btn = this, totalEl = document.getElementById("total");
+  btn.disabled = true; btn.textContent = "Calculating…"; totalEl.style.display = "none";
+  let total = 0, allOk = true;
+  for (const d of legsEl.children) {
+    const out = d.querySelector(".result");
+    const from = d.querySelector(".from").value.trim(), to = d.querySelector(".to").value.trim();
+    out.className = "result";
+    if (!from || !to) { out.textContent = "Enter both places."; out.classList.add("err"); allOk = false; continue; }
+    out.textContent = "Working…";
+    try {
+      const km = Math.round(await legKm(d.querySelector(".mode").value, from, to));
+      total += km;
+      out.textContent = `Enter ${km.toLocaleString("en")} km in the survey for this journey.`;
+      out.classList.add("ok");
+    } catch (e) { out.textContent = e.message; out.classList.add("err"); allOk = false; }
+  }
+  if (total) {
+    totalEl.innerHTML = `<div>Total one-way distance${allOk ? "" : " (completed journeys only)"}</div><div class="big">${total.toLocaleString("en")} km</div>`;
+    totalEl.style.display = "block";
+  }
+  btn.disabled = false; btn.textContent = "Calculate distances";
+};
+
+addLeg(VENUE_DEFAULT);
+</script>
+</body>
+</html>
