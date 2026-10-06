@@ -38,13 +38,28 @@ Limitations:
 
 ## Using it with the Cognito survey
 
-Cognito's hosted forms don't allow custom scripts, so the calculator is a separate page. Add a line to the survey, near the Kilometres field:
+**Combined page (recommended):** https://vukaai-lab.github.io/cmas-travel-distance/survey.html
 
-> Not sure of the distance? Use our distance calculator (opens in a new tab), then type the result below.
+`survey.html` embeds the live Cognito form (using Cognito's official embed script) next to the calculator. On wide screens the calculator is a side card; on phones it's a floating "Distance calculator" button that opens a slide-up sheet. Submissions go to the same Cognito form and entries as the original link.
+
+The form's title is added by this page, because Cognito's embed doesn't include it. If the survey is renamed in Cognito, update the heading in `survey.html` too. The Cognito form ID and public key are in the `<script>` tag in `survey.html`; to reuse the page for another Cognito form, replace `data-form` and `data-key` and the heading (Cognito: Share, then Embed).
+
+**Calculator only:** `index.html` works on its own.
+
+**Inline option (needs Cognito editor access):** `index.html?embed=1` is a compact single-journey version. Add it in a Cognito Content field under the distance question:
+
+```html
+<details><summary><strong>Not sure of the distance? Calculate it here</strong></summary>
+<iframe src="https://vukaai-lab.github.io/cmas-travel-distance/?embed=1" style="width:100%;height:330px;border:0" title="Distance calculator"></iframe>
+</details>
+```
+
+This is untested: it depends on Cognito keeping the iframe in a Content field.
 
 ## Files
 
-- `index.html`: the whole tool (HTML, CSS and JavaScript in one file, no build step).
+- `index.html`: the calculator (HTML, CSS and JavaScript in one file, no build step). Modes: default, `?panel=1` (used inside `survey.html`), `?embed=1` (compact).
+- `survey.html`: the Cognito survey with the calculator alongside.
 
 ## Hosting
 
