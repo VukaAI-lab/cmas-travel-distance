@@ -21,7 +21,7 @@
   .card-head { position:relative; padding:14px 16px 10px; border-bottom:1px solid var(--line); }
   .card-head h2 { margin:0; font-size:15px; }
   .card-head p { margin:2px 0 0; color:var(--muted); font-size:12px; }
-  #calc { display:block; width:100%; height:430px; border:0; background:var(--card); }
+  #calc { display:block; width:100%; height:520px; border:0; background:var(--card); }
 
   /* Floating launcher and slide-up sheet, used on narrower screens */
   .fab, .sheet-close, .scrim { display:none; }
@@ -34,7 +34,7 @@
       transform:translateY(105%); transition:transform .25s ease; visibility:hidden;
     }
     .calc-col .card { border-radius:16px 16px 0 0; border-bottom:0; box-shadow:0 -8px 30px rgba(0,0,0,.25); }
-    #calc { height:min(430px, calc(88vh - 80px)); }
+    #calc { height:min(520px, calc(88vh - 80px)); }
     body.open .calc-col { transform:none; visibility:visible; }
     .scrim { position:fixed; inset:0; z-index:20; background:rgba(0,0,0,.4); }
     body.open .scrim { display:block; }
@@ -61,7 +61,7 @@
         <p>Not sure how far you travelled? Work it out here, then enter it in the survey.</p>
         <button class="sheet-close" id="closeCalc" type="button" aria-label="Close calculator">&times;</button>
       </div>
-      <iframe id="calc" title="Travel distance calculator" src="index.html?panel=1" loading="lazy"></iframe>
+      <iframe id="calc" title="Travel distance calculator" src="index.html?panel=1&v=3" loading="lazy"></iframe>
     </div>
   </aside>
 </div>
