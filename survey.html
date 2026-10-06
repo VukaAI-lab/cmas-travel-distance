@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CMAS 2026 Carbon Footprint Survey</title>
+<style>
+  :root { --bg:#f4f4f4; --card:#fff; --ink:#222; --line:#ccc; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#1b1b1b; --card:#262626; --ink:#eee; --line:#444; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui, sans-serif; }
+  .wrap { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:16px; max-width:1300px; margin:0 auto; padding:16px; }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+  .panel h2 { margin:0; padding:12px 16px; font-size:15px; border-bottom:1px solid var(--line); }
+  iframe { display:block; width:100%; border:0; background:var(--card); }
+  #form { height:2600px; }
+  #calc { height:760px; }
+  .calc-panel { position:sticky; top:16px; align-self:start; }
+  @media (max-width:900px) {
+    .wrap { grid-template-columns:1fr; padding:12px; }
+    .calc-panel { position:static; order:-1; }
+    #calc { height:820px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="panel">
+    <iframe id="form" title="Carbon footprint survey" src="https://www.cognitoforms.com/VUKA1/CarbonMarketsAfricaSummit2026CarbonFootprintSurvey"></iframe>
+  </section>
+  <section class="panel calc-panel">
+    <h2>Need help with the distance? Use the calculator</h2>
+    <iframe id="calc" title="Travel distance calculator" src="index.html"></iframe>
+  </section>
+</div>
+</body>
+</html>
