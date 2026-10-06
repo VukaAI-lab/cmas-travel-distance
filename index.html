@@ -30,6 +30,13 @@
   .total { background:var(--card); border:2px solid var(--accent); border-radius:8px; padding:16px; display:none; }
   .total .big { font-size:28px; font-weight:700; }
   .copy { margin-left:10px; padding:3px 10px; font-size:12px; background:transparent; color:var(--ink); border:1px solid var(--line); }
+  /* Compact mode for embedding under a single survey question: index.html?embed=1 */
+  .embed { background:transparent; }
+  .embed main { padding:0; max-width:none; }
+  .embed h1, .embed .lead, .embed #add, .embed #total, .embed .note, .embed .rm { display:none; }
+  .embed .leg { margin:0 0 8px; padding:12px; }
+  .embed .leg h2 { display:none; }
+  .embed .actions { margin:0; }
   .rm { background:none; border:none; color:var(--muted); padding:0 4px; font-size:13px; }
 </style>
 </head>
@@ -156,6 +163,7 @@ document.getElementById("calc").onclick = async function () {
   btn.disabled = false; btn.textContent = "Calculate distances";
 };
 
+if (new URLSearchParams(location.search).has("embed")) document.body.classList.add("embed");
 addLeg(VENUE_DEFAULT);
 </script>
 </body>
