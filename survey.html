@@ -15,7 +15,11 @@
 
   .layout { display:flex; justify-content:center; align-items:flex-start; gap:20px; max-width:1120px; margin:0 auto; padding:20px 16px; }
   .form-col { flex:1 1 0; min-width:0; max-width:760px; }
-  .calc-col { flex:0 0 340px; position:sticky; top:20px; }
+  .calc-col { flex:0 0 320px; position:sticky; top:20px; }
+
+  /* Give the embedded Cognito form breathing room and slightly larger text */
+  .form-col { background:#fff; border:1px solid var(--line); border-radius:12px; padding:32px 36px; }
+  .form-col form { zoom:1.12; }
 
   .card { background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
   .card-head { position:relative; padding:14px 16px 10px; border-bottom:1px solid var(--line); }
@@ -26,9 +30,10 @@
   /* Floating launcher and slide-up sheet, used on narrower screens */
   .fab, .sheet-close, .scrim { display:none; }
 
-  @media (max-width:980px) {
+  @media (max-width:1040px) {
     .layout { display:block; padding:0; }
-    .form-col { max-width:none; padding:0 14px; background:#fff; }
+    .form-col { max-width:none; padding:18px 16px 90px; border:0; border-radius:0; background:#fff; }
+    .form-col form { zoom:1.05; }
     .calc-col {
       position:fixed; left:0; right:0; bottom:0; z-index:30; max-height:88vh;
       transform:translateY(105%); transition:transform .25s ease; visibility:hidden;
