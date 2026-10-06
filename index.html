@@ -43,6 +43,9 @@
   .result .km small { font-size:13px; font-weight:600; }
   .result .msg { font-size:13px; color:var(--muted); }
   .result.err .msg { color:var(--err); }
+  .result .matched { flex-basis:100%; font-size:12px; color:var(--muted); }
+  .tip { margin:2px 0 12px; font-size:12px; color:var(--muted); }
+  .embed .tip { display:none; }
   .result.busy .msg { color:var(--muted); }
 
   button { font:inherit; cursor:pointer; border-radius:8px; padding:9px 16px; border:1px solid var(--accent); background:var(--accent); color:var(--on-accent); }
@@ -78,6 +81,8 @@
 
   <div id="legs"></div>
 
+  <p class="tip">Add the city or country for best results, e.g. "Meikles Hotel, Harare". You don't need your exact home address: your suburb or nearest landmark is accurate enough.</p>
+
   <div class="actions">
     <button class="ghost" id="add" type="button">+ Add journey</button>
     <button class="primary" id="calc" type="button">Calculate distances</button>
@@ -110,8 +115,8 @@ function addLeg(from, to) {
       ${MODES.map(([v, t], i) => `<label><input type="radio" name="mode${n}" value="${v}"${i === 0 ? " checked" : ""}><span>${t}</span></label>`).join("")}
     </div>
     <div class="places">
-      <div class="field"><label>From (city, country)</label><input type="text" class="from" placeholder="e.g. Lagos, Nigeria" value="${from || ""}"></div>
-      <div class="field"><label>To (city, country)</label><input type="text" class="to" placeholder="e.g. Nairobi, Kenya" value="${to || ""}"></div>
+      <div class="field"><label>From (address, place or airport)</label><input type="text" class="from" placeholder="e.g. Sea Point, Cape Town" value="${from || ""}"></div>
+      <div class="field"><label>To (address, place or airport)</label><input type="text" class="to" placeholder="e.g. Harare International Airport" value="${to || ""}"></div>
     </div>
     <div class="result"></div>`;
   d.querySelector(".rm").onclick = () => { d.remove(); renumber(); };
@@ -133,8 +138,14 @@ async function geocode(q) {
   const r = await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" + encodeURIComponent(q));
   if (!r.ok) throw new Error("Place lookup failed. Please try again.");
   const j = await r.json();
-  if (!j.length) throw new Error(`Couldn't find "${q}". Try "City, Country".`);
-  return (geoCache[q] = { lat: +j[0].lat, lon: +j[0].lon });
+  if (!j.length) throw new Error(`Couldn't find "${q}". Add the city and country, e.g. "Hotel name, Harare, Zimbabwe".`);
+  return (geoCache[q] = { lat: +j[0].lat, lon: +j[0].lon, name: shortName(j[0].display_name) });
+}
+
+// "Place, ..., Region, Country" -> "Place, Country" so people can check the match
+function shortName(full) {
+  const p = full.split(",").map(s => s.trim());
+  return p.length > 2 ? `${p[0]}, ${p[p.length - 1]}` : full;
 }
 
 function haversine(a, b) {
@@ -156,9 +167,9 @@ async function legKm(mode, from, to) {
   const a = await geocode(from);
   await new Promise(r => setTimeout(r, 1100)); // respect Nominatim 1 req/sec
   const b = await geocode(to);
-  if (mode === "air" || mode === "ferry") return haversine(a, b);
-  const km = await drivingKm(a, b);
-  return mode === "rail" ? km * 1.05 : km;
+  const km = (mode === "air" || mode === "ferry") ? haversine(a, b)
+    : (await drivingKm(a, b)) * (mode === "rail" ? 1.05 : 1);
+  return { km, from: a.name, to: b.name };
 }
 
 function show(out, cls, html) { out.className = "result " + cls; out.innerHTML = html; }
@@ -179,7 +190,8 @@ document.getElementById("calc").onclick = async function () {
     show(out, "busy", '<span class="msg">Working…</span>');
     try {
       const mode = d.querySelector("input[type=radio]:checked").value;
-      const km = Math.round(await legKm(mode, from, to));
+      const r = await legKm(mode, from, to);
+      const km = Math.round(r.km);
       total += km;
       show(out, "", `<span class="km">${km.toLocaleString("en")} <small>km</small></span><span class="msg">one-way. Enter this in the survey.</span>`);
       const cb = document.createElement("button");
@@ -189,6 +201,10 @@ document.getElementById("calc").onclick = async function () {
         catch (e) { cb.textContent = "Select " + km; }
       };
       out.appendChild(cb);
+      const m = document.createElement("span");
+      m.className = "matched";
+      m.textContent = `Matched: ${r.from} → ${r.to}. Wrong place? Add the city or country and calculate again.`;
+      out.appendChild(m);
     } catch (e) { show(out, "err", `<span class="msg">${e.message}</span>`); allOk = false; }
   }
   if (total && legsEl.children.length > 1) {
