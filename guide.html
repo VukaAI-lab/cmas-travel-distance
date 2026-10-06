@@ -18,9 +18,11 @@
   p { margin:0 0 12px; }
   .sub { color:var(--muted); margin-bottom:24px; }
   .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:12px; }
-  .links a { display:block; padding:10px 0; border-bottom:1px solid var(--line); color:inherit; }
-  .links a:last-child { border:0; }
-  .links small { display:block; color:var(--muted); }
+  .buttons { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
+  .btn { display:inline-block; padding:10px 20px; border-radius:8px; background:var(--accent); color:var(--on-accent); text-decoration:none; font-weight:600; font-size:15px; border:1px solid var(--accent); }
+  .btn.ghost { background:transparent; color:var(--ink); border-color:var(--line); }
+  .btn:hover { opacity:.85; }
+  .btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
   .flow { counter-reset:s; display:grid; gap:10px; }
   .step { display:grid; grid-template-columns:36px 1fr; gap:12px; align-items:start; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
   .step::before { counter-increment:s; content:counter(s); width:32px; height:32px; border-radius:50%; background:var(--accent); color:var(--on-accent); display:grid; place-items:center; font-weight:700; }
@@ -42,17 +44,17 @@
 </head>
 <body>
 <main>
-  <h1>Survey and distance calculator: how it works</h1>
-  <p class="sub">A guide for Sula. It explains what delegates see, where their answers go, and what you need to do.</p>
+  <h1>Travel Distance Calculator Guide</h1>
+  <p class="sub">How the carbon footprint survey and its distance calculator work: what delegates see, where answers are stored, and how to set it up and test it.</p>
 
-  <div class="card links">
-    <a href="survey.html"><strong>The survey page (the link to send to delegates)</strong><small>Cognito form with the distance calculator beside it</small></a>
-    <a href="index.html"><strong>The calculator on its own</strong><small>Handy for testing a distance quickly</small></a>
+  <div class="buttons">
+    <a class="btn" href="survey.html">Open the survey</a>
+    <a class="btn ghost" href="index.html">Open the calculator</a>
   </div>
 
   <h2>1. What this is</h2>
-  <p>The carbon footprint survey is still your Cognito form. We have put it on a page next to a small <strong>distance calculator</strong>. A delegate types where each journey started and ended, and the calculator works out the km. They then type that number into the survey's "One-way distance" box. They no longer need to work out distances themselves.</p>
-  <div class="note ok"><strong>Your survey and your results stay in Cognito.</strong> The calculator only helps delegates find a number. It does not change the survey questions or where answers are stored.</div>
+  <p>The carbon footprint survey is a Cognito form. It is shown on a page next to a small <strong>distance calculator</strong>. A delegate types where each journey started and ended, and the calculator works out the km. They then type that number into the survey's "One-way distance" box. They no longer need to work out distances themselves.</p>
+  <div class="note ok"><strong>The survey and its results stay in Cognito.</strong> The calculator only helps delegates find a number. It does not change the survey questions or where answers are stored.</div>
 
   <h2>2. What happens, step by step</h2>
   <div class="flow">
@@ -64,37 +66,37 @@
     <div class="arrow">&darr;</div>
     <div class="step"><div><h3>They press Submit</h3><p>Cognito receives the answers, exactly as it does today.</p></div></div>
     <div class="arrow">&darr;</div>
-    <div class="step"><div><h3>You see the entry in Cognito</h3><p>Log in to Cognito, open the survey, and go to <strong>Entries</strong>. You can view, search and export the results to Excel.</p></div></div>
+    <div class="step"><div><h3>The entry appears in Cognito</h3><p>The survey administrator logs in to Cognito, opens the survey, and goes to <strong>Entries</strong>. Results can be viewed, searched and exported to Excel.</p></div></div>
   </div>
 
   <h2>3. Where the information goes</h2>
   <table>
     <tr><th>Information</th><th>Where it goes</th><th>Stored?</th></tr>
-    <tr><td>Survey answers (name, email, journeys, distances)</td><td>Your Cognito account (the <code>VUKA1</code> account), in the survey's Entries</td><td>Yes, by Cognito</td></tr>
+    <tr><td>Survey answers (name, email, journeys, distances)</td><td>The Cognito account that owns the survey (the <code>VUKA1</code> account), in the survey's Entries</td><td>Yes, by Cognito</td></tr>
     <tr><td>Places typed into the calculator</td><td>Sent to <strong>OpenStreetMap</strong> (to find the place) and <strong>OSRM</strong> (to find the driving route) only to get a distance</td><td>No. Our page does not save them</td></tr>
     <tr><td>The calculator page itself</td><td>Hosted free on GitHub Pages</td><td>It holds no delegate data</td></tr>
   </table>
   <div class="note">The calculator never passes a delegate's answers to us, and nothing from the survey reaches GitHub. Only Cognito holds the survey data.</div>
 
-  <h2>4. What you need to do</h2>
+  <h2>4. Setup and testing (for the survey administrator)</h2>
   <div class="who">
     <div class="card">
-      <h3>One-off: test it</h3>
+      <h3>Step 1: test it</h3>
       <ol>
         <li>Open the survey link on a computer and on a phone.</li>
         <li>Try the calculator: <em>Cape Town International Airport</em> to <em>Harare International Airport, Zimbabwe</em> by air. It should give about 2,170 km.</li>
         <li>Submit one test entry with fake details (name "TEST", a small distance).</li>
         <li>In Cognito, open Entries and check it arrived with the right answers.</li>
-        <li>Check whether you got a notification email, if you normally do.</li>
+        <li>Check whether a notification email arrives, if the form is set up to send one.</li>
         <li><strong>Delete the test entry.</strong></li>
       </ol>
     </div>
     <div class="card">
-      <h3>Then: go live</h3>
+      <h3>Step 2: go live</h3>
       <ol>
         <li>Replace the old Cognito link with the new survey link in emails, social posts and messages.</li>
         <li>Optionally, add a line near the distance question: "Not sure of the distance? Use the calculator beside the form."</li>
-        <li>Check Entries as usual while the survey runs.</li>
+        <li>Check Entries in Cognito while the survey runs.</li>
       </ol>
       <p>The old link still works, but delegates using it will not see the calculator.</p>
     </div>
@@ -123,8 +125,8 @@
     <tr><td>A distance looks wrong in the results</td><td>Check the places the delegate typed. Unusually large or small values are worth reviewing before using the data.</td></tr>
   </table>
 
-  <h2>7. Who to contact</h2>
-  <p>Hlulani Mathebula, Vuka (hlulani.mathebula@wearevuka.com), for anything about the calculator or the survey page.</p>
+  <h2>7. Support</h2>
+  <p>For questions about the calculator or the survey page, contact Hlulani Mathebula at Vuka (hlulani.mathebula@wearevuka.com).</p>
 </main>
 </body>
 </html>
