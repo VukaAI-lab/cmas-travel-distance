@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Survey and Distance Calculator Guide</title>
+<style>
+  :root { --bg:#f4f4f4; --card:#fff; --ink:#1f1f1f; --muted:#666; --line:#dcdcdc; --accent:#111; --on-accent:#fff; --soft:#f1f1f1; --ok:#14683a; --warn:#8a5a00; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#1b1b1b; --card:#262626; --ink:#eee; --muted:#a8a8a8; --line:#444; --accent:#fff; --on-accent:#111; --soft:#303030; --ok:#6fd49a; --warn:#f0c36a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:780px; margin:0 auto; padding:32px 16px 64px; }
+  h1 { font-size:28px; line-height:1.2; margin:0 0 6px; }
+  h2 { font-size:20px; margin:40px 0 12px; }
+  h3 { font-size:16px; margin:0 0 4px; }
+  p { margin:0 0 12px; }
+  .sub { color:var(--muted); margin-bottom:24px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:12px; }
+  .links a { display:block; padding:10px 0; border-bottom:1px solid var(--line); color:inherit; }
+  .links a:last-child { border:0; }
+  .links small { display:block; color:var(--muted); }
+  .flow { counter-reset:s; display:grid; gap:10px; }
+  .step { display:grid; grid-template-columns:36px 1fr; gap:12px; align-items:start; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  .step::before { counter-increment:s; content:counter(s); width:32px; height:32px; border-radius:50%; background:var(--accent); color:var(--on-accent); display:grid; place-items:center; font-weight:700; }
+  .step p { margin:0; color:var(--muted); }
+  .arrow { text-align:center; color:var(--muted); line-height:1; margin:-4px 0; }
+  .note { background:var(--soft); border-radius:10px; padding:12px 16px; margin:12px 0; }
+  .note.warn { border-left:4px solid var(--warn); }
+  .note.ok { border-left:4px solid var(--ok); }
+  ul, ol { padding-left:22px; margin:0 0 12px; }
+  li { margin-bottom:6px; }
+  table { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; font-size:15px; }
+  th, td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { background:var(--soft); font-size:13px; }
+  tr:last-child td { border-bottom:0; }
+  code { background:var(--soft); padding:1px 6px; border-radius:4px; font-size:14px; }
+  .who { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:600px) { .who { grid-template-columns:1fr; } table { font-size:14px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Survey and distance calculator: how it works</h1>
+  <p class="sub">A guide for Sula. It explains what delegates see, where their answers go, and what you need to do.</p>
+
+  <div class="card links">
+    <a href="survey.html"><strong>The survey page (the link to send to delegates)</strong><small>Cognito form with the distance calculator beside it</small></a>
+    <a href="index.html"><strong>The calculator on its own</strong><small>Handy for testing a distance quickly</small></a>
+  </div>
+
+  <h2>1. What this is</h2>
+  <p>The carbon footprint survey is still your Cognito form. We have put it on a page next to a small <strong>distance calculator</strong>. A delegate types where each journey started and ended, and the calculator works out the km. They then type that number into the survey's "One-way distance" box. They no longer need to work out distances themselves.</p>
+  <div class="note ok"><strong>Your survey and your results stay in Cognito.</strong> The calculator only helps delegates find a number. It does not change the survey questions or where answers are stored.</div>
+
+  <h2>2. What happens, step by step</h2>
+  <div class="flow">
+    <div class="step"><div><h3>Delegate opens the new survey link</h3><p>They see the same survey as before. On a computer, the calculator is a card on the right. On a phone, it opens from a "Distance calculator" button at the bottom of the screen.</p></div></div>
+    <div class="arrow">&darr;</div>
+    <div class="step"><div><h3>They use the calculator for each journey</h3><p>They pick the mode (Air, Rail, Vehicle or Ferry), type where they started and where they ended (an address, a place, a hotel or an airport), and press Calculate. The calculator shows the km and which places it matched, so they can check them.</p></div></div>
+    <div class="arrow">&darr;</div>
+    <div class="step"><div><h3>They copy the number into the survey</h3><p>They press Copy, or type the km, into the "One-way distance travelled with this mode (in km)" box for that journey. They repeat for each journey (Add Journey).</p></div></div>
+    <div class="arrow">&darr;</div>
+    <div class="step"><div><h3>They press Submit</h3><p>Cognito receives the answers, exactly as it does today.</p></div></div>
+    <div class="arrow">&darr;</div>
+    <div class="step"><div><h3>You see the entry in Cognito</h3><p>Log in to Cognito, open the survey, and go to <strong>Entries</strong>. You can view, search and export the results to Excel.</p></div></div>
+  </div>
+
+  <h2>3. Where the information goes</h2>
+  <table>
+    <tr><th>Information</th><th>Where it goes</th><th>Stored?</th></tr>
+    <tr><td>Survey answers (name, email, journeys, distances)</td><td>Your Cognito account (the <code>VUKA1</code> account), in the survey's Entries</td><td>Yes, by Cognito</td></tr>
+    <tr><td>Places typed into the calculator</td><td>Sent to <strong>OpenStreetMap</strong> (to find the place) and <strong>OSRM</strong> (to find the driving route) only to get a distance</td><td>No. Our page does not save them</td></tr>
+    <tr><td>The calculator page itself</td><td>Hosted free on GitHub Pages</td><td>It holds no delegate data</td></tr>
+  </table>
+  <div class="note">The calculator never passes a delegate's answers to us, and nothing from the survey reaches GitHub. Only Cognito holds the survey data.</div>
+
+  <h2>4. What you need to do</h2>
+  <div class="who">
+    <div class="card">
+      <h3>One-off: test it</h3>
+      <ol>
+        <li>Open the survey link on a computer and on a phone.</li>
+        <li>Try the calculator: <em>Cape Town International Airport</em> to <em>Harare International Airport, Zimbabwe</em> by air. It should give about 2,170 km.</li>
+        <li>Submit one test entry with fake details (name "TEST", a small distance).</li>
+        <li>In Cognito, open Entries and check it arrived with the right answers.</li>
+        <li>Check whether you got a notification email, if you normally do.</li>
+        <li><strong>Delete the test entry.</strong></li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>Then: go live</h3>
+      <ol>
+        <li>Replace the old Cognito link with the new survey link in emails, social posts and messages.</li>
+        <li>Optionally, add a line near the distance question: "Not sure of the distance? Use the calculator beside the form."</li>
+        <li>Check Entries as usual while the survey runs.</li>
+      </ol>
+      <p>The old link still works, but delegates using it will not see the calculator.</p>
+    </div>
+  </div>
+
+  <h2>5. Limits to be aware of</h2>
+  <table>
+    <tr><th>What</th><th>What it means for the data</th></tr>
+    <tr><td>Distances are estimates</td><td>Fine for carbon footprint reporting, not for navigation.</td></tr>
+    <tr><td>Air and ferry</td><td>Straight-line distance. Real flights are usually a little longer.</td></tr>
+    <tr><td>Rail</td><td>Estimated from the road distance plus 5%. It is approximate.</td></tr>
+    <tr><td>Vehicle</td><td>Driving route. It may avoid a border or ferry the person actually used.</td></tr>
+    <tr><td>Wrong place matched</td><td>If a delegate types only "Paris", the tool may pick the wrong one. The calculator shows what it matched so they can fix it by adding the country.</td></tr>
+    <tr><td>Place not found</td><td>The tool says so and gives no number. This is safe. Delegates can still type their own estimate.</td></tr>
+    <tr><td>Free services</td><td>OpenStreetMap and OSRM are free and shared. They can be slow at busy times, with no guarantee of uptime.</td></tr>
+  </table>
+  <div class="note warn"><strong>Privacy tip for delegates:</strong> they do not need to enter their exact home address. Their suburb or nearest landmark is accurate enough.</div>
+
+  <h2>6. If something goes wrong</h2>
+  <table>
+    <tr><th>Problem</th><th>What to do</th></tr>
+    <tr><td>A delegate says the calculator can't find their place</td><td>Ask them to add the city and country (for example "Hotel name, Harare, Zimbabwe"), or to type their own estimate in the survey.</td></tr>
+    <tr><td>The calculator shows an error or is slow</td><td>Wait a minute and try again. If it keeps failing, delegates can type their own estimate. Tell Hlulani.</td></tr>
+    <tr><td>Looks different or old after an update</td><td>Press Ctrl + F5 to refresh. Browsers keep an old copy for a few minutes.</td></tr>
+    <tr><td>Submit doesn't work or no entry appears in Cognito</td><td>Check the survey is open and its settings in Cognito. If the old Cognito link works but ours does not, tell Hlulani straight away.</td></tr>
+    <tr><td>A distance looks wrong in the results</td><td>Check the places the delegate typed. Unusually large or small values are worth reviewing before using the data.</td></tr>
+  </table>
+
+  <h2>7. Who to contact</h2>
+  <p>Hlulani Mathebula, Vuka (hlulani.mathebula@wearevuka.com), for anything about the calculator or the survey page.</p>
+</main>
+</body>
+</html>
