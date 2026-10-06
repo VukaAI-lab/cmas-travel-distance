@@ -29,6 +29,7 @@
   .note { font-size:12px; color:var(--muted); font-weight:400; }
   .total { background:var(--card); border:2px solid var(--accent); border-radius:8px; padding:16px; display:none; }
   .total .big { font-size:28px; font-weight:700; }
+  .copy { margin-left:10px; padding:3px 10px; font-size:12px; background:transparent; color:var(--ink); border:1px solid var(--line); }
   .rm { background:none; border:none; color:var(--muted); padding:0 4px; font-size:13px; }
 </style>
 </head>
@@ -36,6 +37,7 @@
 <main>
   <h1>Travel distance calculator</h1>
   <p class="lead">Enter where each leg of your journey started and ended. We'll work out the distance in km so you can copy it into the Carbon Markets Africa Summit 2026 survey. One block per journey, matching the "Journey" sections on the survey.</p>
+  <p class="lead"><strong>Enter one-way distances only.</strong> If your trip was a return, the survey asks about that separately, so don't double the figure.</p>
 
   <div id="legs"></div>
 
@@ -46,6 +48,7 @@
 
   <div class="total" id="total" aria-live="polite"></div>
   <p class="note">Air and ferry: straight-line (great-circle) distance. Vehicle: driving route distance. Rail: estimated from the driving route, since no free rail routing exists. Distances are one-way. Place lookups use OpenStreetMap; routing uses the OSRM public server.</p>
+  <p class="note"><strong>Privacy:</strong> this tool doesn't store or collect anything. The place names you type are sent to OpenStreetMap and OSRM only to look up the distance.</p>
 </main>
 
 <script>
@@ -137,6 +140,13 @@ document.getElementById("calc").onclick = async function () {
       total += km;
       out.textContent = `Enter ${km.toLocaleString("en")} km in the survey for this journey.`;
       out.classList.add("ok");
+      const cb = document.createElement("button");
+      cb.type = "button"; cb.className = "copy"; cb.textContent = "Copy " + km;
+      cb.onclick = async () => {
+        try { await navigator.clipboard.writeText(String(km)); cb.textContent = "Copied"; }
+        catch (e) { cb.textContent = "Select and copy " + km; }
+      };
+      out.appendChild(cb);
     } catch (e) { out.textContent = e.message; out.classList.add("err"); allOk = false; }
   }
   if (total) {
