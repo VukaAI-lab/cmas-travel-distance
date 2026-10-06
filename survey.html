@@ -20,7 +20,8 @@
   /* Give the embedded Cognito form breathing room and slightly larger text */
   .form-col { background:#fff; border:1px solid var(--line); border-radius:12px; padding:32px 36px; }
   .form-col form { zoom:1.12; }
-  .form-col form .cog-content p { text-align:justify; hyphens:auto; }
+  html body .form-col form .cog-content p,
+  html body .form-col form .cog-content p span { text-align:justify !important; text-justify:inter-word; hyphens:auto; }
 
   .card { background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
   .card-head { position:relative; padding:14px 16px 10px; border-bottom:1px solid var(--line); }
