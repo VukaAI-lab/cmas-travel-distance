@@ -28,7 +28,8 @@ All distances are **one-way**, matching the survey question.
 
 No map or place data is stored in this project. It calls two free public services when the user clicks Calculate:
 
-- **[Nominatim (OpenStreetMap)](https://nominatim.org/)** turns place names into coordinates.
+- **[Photon](https://photon.komoot.io/)** (built on OpenStreetMap data) provides the as-you-type place suggestions. A suggestion that is picked carries its own coordinates, which is the most accurate path.
+- **[Nominatim (OpenStreetMap)](https://nominatim.org/)** turns place names that were typed but not picked into coordinates.
 - **[OSRM](https://project-osrm.org/)** (public demo server) returns driving distances.
 
 Limitations:
@@ -50,7 +51,7 @@ The form's title is added by this page, because Cognito's embed doesn't include 
 
 ```html
 <details><summary><strong>Not sure of the distance? Calculate it here</strong></summary>
-<iframe src="https://vukaai-lab.github.io/cmas-travel-distance/?embed=1" style="width:100%;height:330px;border:0" title="Distance calculator"></iframe>
+<iframe src="https://vukaai-lab.github.io/cmas-travel-distance/?embed=1" style="width:100%;height:420px;border:0" title="Distance calculator"></iframe>
 </details>
 ```
 

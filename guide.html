@@ -83,7 +83,7 @@
   <div class="flow">
     <div class="step"><div><h3>Delegate opens the new survey link</h3><p>They see the same survey as before. On a computer, the calculator is a card on the right. On a phone, it opens from a "Distance calculator" button at the bottom of the screen.</p></div></div>
     <div class="arrow">&darr;</div>
-    <div class="step"><div><h3>They use the calculator for each journey</h3><p>They pick the mode (Air, Rail, Vehicle or Ferry), type where they started and where they ended (an address, a place, a hotel or an airport), and press Calculate. The calculator shows the km and which places it matched, so they can check them.</p></div></div>
+    <div class="step"><div><h3>They use the calculator for each journey</h3><p>They pick the mode (Air, Rail, Vehicle or Ferry), type where they started and where they ended (an address, a place, a hotel or an airport) and pick the right match from the suggestions that appear as they type, then press Calculate. The calculator shows the km and which places it matched, so they can check them.</p></div></div>
     <div class="arrow">&darr;</div>
     <div class="step"><div><h3>They copy the number into the survey</h3><p>They press Copy, or type the km, into the "One-way distance travelled with this mode (in km)" box for that journey. They repeat for each journey (Add Journey).</p></div></div>
     <div class="arrow">&darr;</div>
@@ -96,7 +96,7 @@
   <table>
     <tr><th>Information</th><th>Where it goes</th><th>Stored?</th></tr>
     <tr><td>Survey answers (name, email, journeys, distances)</td><td>The Cognito account that owns the survey (the <code>VUKA1</code> account), in the survey's Entries</td><td>Yes, by Cognito</td></tr>
-    <tr><td>Places typed into the calculator</td><td>Sent to <strong>OpenStreetMap</strong> (to find the place) and <strong>OSRM</strong> (to find the driving route) only to get a distance</td><td>No. Our page does not save them</td></tr>
+    <tr><td>Places typed into the calculator</td><td>Sent as they are typed to <strong>Photon</strong> (to suggest places), and to <strong>OpenStreetMap</strong> (to find a place) and <strong>OSRM</strong> (to find the driving route), only to get a distance</td><td>No. Our page does not save them</td></tr>
     <tr><td>The calculator page itself</td><td>Hosted free on GitHub Pages</td><td>It holds no delegate data</td></tr>
   </table>
   <div class="note">The calculator never passes a delegate's answers to us, and nothing from the survey reaches GitHub. Only Cognito holds the survey data.</div>
@@ -141,7 +141,7 @@
   <h2>6. If something goes wrong</h2>
   <table>
     <tr><th>Problem</th><th>What to do</th></tr>
-    <tr><td>A delegate says the calculator can't find their place</td><td>Ask them to add the city and country (for example "Hotel name, Harare, Zimbabwe"), or to type their own estimate in the survey.</td></tr>
+    <tr><td>A delegate says the calculator can't find their place</td><td>The calculator explains why and suggests similar places to tap. Otherwise ask them to retype it with the city and country (for example "Hotel name, Harare, Zimbabwe"), or to type their own estimate in the survey.</td></tr>
     <tr><td>The calculator shows an error or is slow</td><td>Wait a minute and try again. If it keeps failing, delegates can type their own estimate. Tell Hlulani.</td></tr>
     <tr><td>Looks different or old after an update</td><td>Press Ctrl + F5 to refresh. Browsers keep an old copy for a few minutes.</td></tr>
     <tr><td>Submit doesn't work or no entry appears in Cognito</td><td>Check the survey is open and its settings in Cognito. If the old Cognito link works but ours does not, tell Hlulani straight away.</td></tr>

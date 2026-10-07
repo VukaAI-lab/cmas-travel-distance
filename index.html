@@ -135,7 +135,7 @@ class FriendlyError extends Error {}
 class NotFound extends Error { constructor(q, which) { super("not found"); this.q = q; this.which = which; } }
 class NoRoute extends Error { constructor(a, b) { super("no route"); this.a = a; this.b = b; } }
 
-async function getJson(url, what, signal) {
+async function getJson(url, what, signal, bodyOn400) {
   let r;
   try { r = await fetch(url, { signal: signal || AbortSignal.timeout(15000) }); }
   catch (e) {
@@ -146,8 +146,8 @@ async function getJson(url, what, signal) {
   }
   if (r.status === 429 || r.status >= 500)
     throw new FriendlyError(`${what} is busy right now. Wait a minute and try again, or enter your own estimate in the survey.`);
-  if (!r.ok) throw new FriendlyError(`${what} returned an error (${r.status}). Please try again.`);
-  return r.json();
+  if (!r.ok && !(bodyOn400 && r.status === 400)) throw new FriendlyError(`${what} returned an error (${r.status}). Please try again.`);
+  try { return await r.json(); } catch (e) { throw new FriendlyError(`${what} sent an unexpected reply. Please try again.`); }
 }
 
 /* ---------- Place search (suggestions) ---------- */
@@ -156,7 +156,7 @@ function fromPhoton(f) {
   const street = p.street ? (p.housenumber ? p.housenumber + " " : "") + p.street : "";
   const main = p.name || street || p.city || p.district || p.county || p.state || p.country || "";
   const all = uniq([main, p.name && street ? street : "", p.district, p.city, p.county, p.state, p.country]);
-  const value = uniq([main, p.city || p.district || p.county || p.state, p.country]).join(", ");
+  const value = uniq([main, p.city || p.county || p.district || p.state, p.country]).join(", ");
   const [lon, lat] = f.geometry.coordinates;
   return { main, sub: all.slice(1).join(", "), value, lat, lon };
 }
@@ -299,7 +299,7 @@ function haversine(a, b) {
 }
 
 async function drivingKm(a, b) {
-  const j = await getJson(`https://router.project-osrm.org/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=false`, "the route service");
+  const j = await getJson(`https://router.project-osrm.org/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=false`, "the route service", null, true);
   if (j.code !== "Ok" || !j.routes || !j.routes.length) throw new NoRoute(a.name, b.name);
   return j.routes[0].distance / 1000;
 }
