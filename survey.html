@@ -4,93 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CMAS 2026 Carbon Footprint Survey</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,300i,700&display=swap" rel="stylesheet">
-<style>
-  :root { --bg:#e9e9e9; --card:#fff; --ink:#1f1f1f; --muted:#6b6b6b; --line:#d6d6d6; --accent:#111; --on-accent:#fff; }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg:#161616; --card:#262626; --ink:#eee; --muted:#a8a8a8; --line:#444; --accent:#fff; --on-accent:#111; }
-  }
-  * { box-sizing:border-box; }
-  html, body { margin:0; }
-  body { background:var(--bg); color:var(--ink); font:14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
-
-  .layout { display:flex; justify-content:center; align-items:flex-start; gap:20px; max-width:1180px; margin:0 auto; padding:20px 16px; }
-  .form-col { flex:1 1 0; min-width:0; max-width:800px; }
-  .calc-col { flex:0 0 320px; position:sticky; top:20px; }
-
-  /* Give the embedded Cognito form breathing room and slightly larger text */
-  .form-col { background:#fff; border:1px solid var(--line); border-radius:12px; padding:32px 36px; }
-  /* Keep Cognito's own left-aligned text: no stretched word gaps */
-  html body .form-col form .cog-content,
-  html body .form-col form .cog-content p,
-  html body .form-col form .cog-content p span { text-align:left !important; word-spacing:normal !important; letter-spacing:normal; }
-  .form-title { margin:0 0 22px; font:700 24px/1.2 "Open Sans Condensed", Helvetica, sans-serif; color:#383838; }
-
-  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
-  .card-head { position:relative; padding:14px 16px 10px; border-bottom:1px solid var(--line); }
-  .card-head h2 { margin:0; font-size:15px; }
-  .card-head p { margin:2px 0 0; color:var(--muted); font-size:12px; }
-  #calc { display:block; width:100%; height:520px; border:0; background:var(--card); }
-
-  /* Floating launcher and slide-up sheet, used on narrower screens */
-  .fab, .sheet-close, .scrim { display:none; }
-
-  @media (max-width:1040px) {
-    .layout { display:block; padding:0; }
-    .form-col { max-width:none; padding:18px 16px 90px; border:0; border-radius:0; background:#fff; }
-    .calc-col {
-      position:fixed; left:0; right:0; bottom:0; z-index:30; max-height:88vh;
-      transform:translateY(105%); transition:transform .25s ease; visibility:hidden;
-    }
-    .calc-col .card { border-radius:16px 16px 0 0; border-bottom:0; box-shadow:0 -8px 30px rgba(0,0,0,.25); }
-    #calc { height:min(520px, calc(88vh - 80px)); }
-    body.open .calc-col { transform:none; visibility:visible; }
-    .scrim { position:fixed; inset:0; z-index:20; background:rgba(0,0,0,.4); }
-    body.open .scrim { display:block; }
-    .sheet-close { display:block; position:absolute; top:8px; right:10px; background:none; border:0; font-size:22px; line-height:1; color:var(--muted); cursor:pointer; padding:4px 8px; }
-    .fab {
-      display:flex; align-items:center; gap:8px; position:fixed; right:16px; bottom:16px; z-index:10;
-      background:var(--accent); color:var(--on-accent); border:0; border-radius:999px; padding:12px 18px;
-      font:600 14px system-ui, sans-serif; box-shadow:0 4px 14px rgba(0,0,0,.3); cursor:pointer;
-    }
-    body.open .fab { display:none; }
-  }
-</style>
+<meta http-equiv="refresh" content="0; url=index.html">
+<link rel="canonical" href="index.html">
 </head>
 <body>
-<div class="layout">
-  <div class="form-col">
-    <h1 class="form-title">Carbon Markets Africa Summit 2026 carbon footprint survey</h1>
-    <script src="https://www.cognitoforms.com/f/seamless.js" data-key="SB-mLDLzc0OVyQrCTE3R5A" data-form="366"></script>
-  </div>
-
-  <aside class="calc-col" id="calcPanel" aria-label="Distance calculator">
-    <div class="card">
-      <div class="card-head">
-        <h2>Distance calculator</h2>
-        <p>Not sure how far you travelled? Work it out here, then enter it in the survey.</p>
-        <button class="sheet-close" id="closeCalc" type="button" aria-label="Close calculator">&times;</button>
-      </div>
-      <iframe id="calc" title="Travel distance calculator" src="index.html?panel=1&v=6" loading="lazy"></iframe>
-    </div>
-  </aside>
-</div>
-
-<div class="scrim" id="scrim"></div>
-<button class="fab" id="openCalc" type="button" aria-controls="calcPanel">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
-  Distance calculator
-</button>
-
-<script>
-  const body = document.body;
-  const set = open => body.classList.toggle("open", open);
-  document.getElementById("openCalc").onclick = () => set(true);
-  document.getElementById("closeCalc").onclick = () => set(false);
-  document.getElementById("scrim").onclick = () => set(false);
-  document.addEventListener("keydown", e => { if (e.key === "Escape") set(false); });
-</script>
+<p>This page has moved. <a href="index.html">Open the survey</a>.</p>
+<script>location.replace("index.html" + location.search + location.hash);</script>
 </body>
 </html>

@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Travel Distance Calculator</title>
+<style>
+  :root {
+    --bg:#f6f6f6; --card:#fff; --ink:#1f1f1f; --muted:#6b6b6b; --line:#dcdcdc;
+    --accent:#111; --on-accent:#fff; --ok:#14683a; --err:#b3261e; --soft:#f1f1f1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#1b1b1b; --card:#262626; --ink:#eee; --muted:#a8a8a8; --line:#444;
+            --accent:#fff; --on-accent:#111; --ok:#6fd49a; --err:#ff8a8a; --soft:#303030; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:560px; margin:0 auto; padding:24px 16px 40px; }
+  h1 { font-size:20px; margin:0 0 4px; letter-spacing:-.01em; }
+  .lead { color:var(--muted); margin:0 0 16px; }
+  .lead strong { color:var(--ink); }
+
+  .leg { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:10px; }
+  .leg-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  .leg-title { font-weight:600; font-size:13px; }
+  .rm { background:none; border:none; color:var(--muted); font-size:12px; padding:2px 4px; cursor:pointer; text-decoration:underline; }
+
+  .modes { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:12px; }
+  .modes label { margin:0; }
+  .modes input { position:absolute; opacity:0; pointer-events:none; }
+  .modes span { display:block; text-align:center; padding:8px 0; border:1px solid var(--line); border-radius:8px; font-size:13px; cursor:pointer; background:var(--card); user-select:none; }
+  .modes input:checked + span { background:var(--accent); color:var(--on-accent); border-color:var(--accent); font-weight:600; }
+  .modes input:focus-visible + span { outline:2px solid var(--accent); outline-offset:2px; }
+
+  .places { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; }
+  .field { position:relative; }
+  .field label { display:block; font-size:12px; font-weight:600; color:var(--muted); margin-bottom:4px; }
+  input[type=text] { width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--ink); font:inherit; }
+  input[type=text]:focus { outline:2px solid var(--accent); outline-offset:-1px; border-color:transparent; }
+  input[type=text].invalid { border-color:var(--err); }
+
+  /* As-you-type suggestions */
+  .sugg { position:absolute; left:0; right:0; top:100%; z-index:20; margin:4px 0 0; padding:4px; list-style:none;
+          background:var(--card); border:1px solid var(--line); border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,.18);
+          max-height:240px; overflow:auto; }
+  .sugg[hidden] { display:none; }
+  .sugg li { padding:7px 10px; border-radius:6px; cursor:pointer; }
+  .sugg li[aria-selected=true], .sugg li:hover { background:var(--soft); }
+  .sugg .m { font-size:13px; font-weight:600; }
+  .sugg .s { font-size:12px; color:var(--muted); }
+  .sugg li.none { cursor:default; color:var(--muted); font-size:12px; }
+  .sugg li.none:hover { background:none; }
+
+  .result { min-height:0; margin-top:10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .result:empty { display:none; }
+  .result .km { font-size:22px; font-weight:700; color:var(--ok); }
+  .result .km small { font-size:13px; font-weight:600; }
+  .result .msg { font-size:13px; color:var(--muted); }
+  .result .matched { flex-basis:100%; font-size:12px; color:var(--muted); }
+  .errbox { flex-basis:100%; font-size:13px; color:var(--muted); }
+  .errbox .et { color:var(--err); font-weight:600; margin-bottom:4px; }
+  .errbox ul { margin:4px 0 8px; padding-left:18px; }
+  .errbox li { margin-bottom:2px; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 4px; }
+  button.chip { padding:5px 10px; font-size:12px; background:transparent; color:var(--ink); border-color:var(--line); text-align:left; }
+  button.chip small { color:var(--muted); }
+  .tip { margin:2px 0 12px; font-size:12px; color:var(--muted); }
+  .embed .tip { display:none; }
+
+  button { font:inherit; cursor:pointer; border-radius:8px; padding:9px 16px; border:1px solid var(--accent); background:var(--accent); color:var(--on-accent); }
+  button.ghost { background:transparent; color:var(--ink); border-color:var(--line); }
+  button.copy { padding:4px 10px; font-size:12px; background:transparent; color:var(--ink); border-color:var(--line); }
+  button:disabled { opacity:.5; cursor:wait; }
+  .actions { display:flex; gap:8px; flex-wrap:wrap; margin:4px 0 12px; }
+  .actions .primary { flex:1 1 140px; }
+
+  .total { display:none; background:var(--soft); border-radius:10px; padding:12px 14px; margin-bottom:12px; justify-content:space-between; align-items:baseline; }
+  .total .big { font-size:20px; font-weight:700; }
+
+  details.about { color:var(--muted); font-size:12px; }
+  details.about summary { cursor:pointer; }
+  details.about p { margin:6px 0 0; }
+
+  /* Side panel on the survey page: calculator.html?panel=1 */
+  .panel main { padding:14px 14px 20px; max-width:none; }
+  .panel h1, .panel .lead { display:none; }
+  body.panel { background:var(--card); }
+
+  /* Single-question mode for Cognito Content field: calculator.html?embed=1 */
+  body.embed { background:transparent; }
+  .embed main { padding:0; max-width:none; }
+  .embed h1, .embed .lead, .embed #add, .embed #total, .embed .about, .embed .rm, .embed .leg-head { display:none; }
+  .embed .leg { margin:0 0 8px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Travel distance calculator</h1>
+  <p class="lead">Type where each journey started and ended, then pick from the suggestions. <strong>One-way distances only.</strong> For a return trip, don't double it.</p>
+
+  <div id="legs"></div>
+
+  <p class="tip">Start typing and choose a suggestion for the most accurate result. You don't need your exact home address: your suburb or nearest landmark is accurate enough.</p>
+
+  <div class="actions">
+    <button class="ghost" id="add" type="button">+ Add journey</button>
+    <button class="primary" id="calc" type="button">Calculate distances</button>
+  </div>
+
+  <div class="total" id="total" aria-live="polite"></div>
+
+  <details class="about">
+    <summary>How is this calculated?</summary>
+    <p>Air and ferry use straight-line distance. Vehicle uses the driving route. Rail is estimated from the driving route, because no free rail routing exists. Results are estimates for carbon footprint reporting.</p>
+    <p><strong>Privacy:</strong> this tool doesn't store or collect anything. As you type, the text is sent to Photon (a search service built on OpenStreetMap data) to show suggestions, and to OpenStreetMap and OSRM to find the distance.</p>
+  </details>
+</main>
+
+<script>
+// Optional: default destination for a specific event. Leave blank for the general, reusable form.
+const VENUE_DEFAULT = "";
+
+const PHOTON = "https://photon.komoot.io/api/";
+const legsEl = document.getElementById("legs");
+const calcBtn = document.getElementById("calc");
+let legCount = 0, sgId = 0;
+const MODES = [["air", "Air"], ["rail", "Rail"], ["vehicle", "Vehicle"], ["ferry", "Ferry"]];
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const uniq = arr => { const seen = new Set(); return arr.filter(x => { if (!x) return false; const k = x.toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; }); };
+
+/* ---------- Errors with plain-language explanations ---------- */
+class FriendlyError extends Error {}
+class NotFound extends Error { constructor(q, which) { super("not found"); this.q = q; this.which = which; } }
+class NoRoute extends Error { constructor(a, b) { super("no route"); this.a = a; this.b = b; } }
+
+async function getJson(url, what, signal, bodyOn400) {
+  let r;
+  try { r = await fetch(url, { signal: signal || AbortSignal.timeout(15000) }); }
+  catch (e) {
+    if (e.name === "AbortError" && signal) throw e;
+    throw new FriendlyError(e.name === "TimeoutError"
+      ? `${what} took too long to respond. Please try again.`
+      : `We couldn't reach ${what}. Check your internet connection and try again.`);
+  }
+  if (r.status === 429 || r.status >= 500)
+    throw new FriendlyError(`${what} is busy right now. Wait a minute and try again, or enter your own estimate in the survey.`);
+  if (!r.ok && !(bodyOn400 && r.status === 400)) throw new FriendlyError(`${what} returned an error (${r.status}). Please try again.`);
+  try { return await r.json(); } catch (e) { throw new FriendlyError(`${what} sent an unexpected reply. Please try again.`); }
+}
+
+/* ---------- Place search (suggestions) ---------- */
+function fromPhoton(f) {
+  const p = f.properties || {};
+  const street = p.street ? (p.housenumber ? p.housenumber + " " : "") + p.street : "";
+  const main = p.name || street || p.city || p.district || p.county || p.state || p.country || "";
+  const all = uniq([main, p.name && street ? street : "", p.district, p.city, p.county, p.state, p.country]);
+  const value = uniq([main, p.city || p.county || p.district || p.state, p.country]).join(", ");
+  const [lon, lat] = f.geometry.coordinates;
+  return { main, sub: all.slice(1).join(", "), value, lat, lon };
+}
+
+async function searchPlaces(q, limit, signal) {
+  const j = await getJson(`${PHOTON}?q=${encodeURIComponent(q)}&limit=${limit}&lang=en`, "the place search", signal);
+  return (j.features || []).filter(f => f.geometry && f.properties).map(fromPhoton);
+}
+
+// "Did you mean" for a name that couldn't be matched: try the text, then simpler versions of it
+async function similarPlaces(q) {
+  const variants = uniq([
+    q,
+    q.replace(/^\d+[a-z]?\s+/i, ""),
+    q.split(",").slice(1).join(",").trim(),
+    q.split(/\s+/).slice(0, 2).join(" ")
+  ]).filter(v => v.length >= 3);
+  for (const v of variants) {
+    try { const r = await searchPlaces(v, 4); if (r.length) return r; } catch (e) { return []; }
+  }
+  return [];
+}
+
+function pickPlace(input, it) {
+  input.value = it.value;
+  input.dataset.lat = it.lat; input.dataset.lon = it.lon; input.dataset.label = it.value;
+  input.classList.remove("invalid");
+}
+function clearPick(input) { delete input.dataset.lat; delete input.dataset.lon; delete input.dataset.label; }
+
+function attachSuggest(input) {
+  const list = document.createElement("ul");
+  list.className = "sugg"; list.id = "sg" + (++sgId); list.hidden = true; list.setAttribute("role", "listbox");
+  input.closest(".field").appendChild(list);
+  input.setAttribute("role", "combobox"); input.setAttribute("aria-autocomplete", "list");
+  input.setAttribute("aria-controls", list.id); input.setAttribute("aria-expanded", "false"); input.autocomplete = "off";
+  let items = [], active = -1, timer, ctrl;
+
+  const close = () => { list.hidden = true; active = -1; input.setAttribute("aria-expanded", "false"); input.removeAttribute("aria-activedescendant"); };
+  const mark = () => {
+    [...list.children].forEach((li, i) => li.setAttribute("aria-selected", i === active ? "true" : "false"));
+    if (active >= 0) { input.setAttribute("aria-activedescendant", list.children[active].id); list.children[active].scrollIntoView({ block: "nearest" }); }
+  };
+  const choose = i => { pickPlace(input, items[i]); close(); };
+  const render = () => {
+    list.innerHTML = "";
+    if (!items.length) {
+      list.innerHTML = '<li class="none">No matches yet. Keep typing, or add the city or country.</li>';
+    } else items.forEach((it, i) => {
+      const li = document.createElement("li");
+      li.setAttribute("role", "option"); li.id = list.id + "o" + i;
+      li.innerHTML = `<div class="m">${esc(it.main)}</div>${it.sub ? `<div class="s">${esc(it.sub)}</div>` : ""}`;
+      li.onmousedown = e => { e.preventDefault(); choose(i); };
+      list.appendChild(li);
+    });
+    active = -1; list.hidden = false; input.setAttribute("aria-expanded", "true");
+  };
+
+  input.addEventListener("input", () => {
+    clearPick(input); input.classList.remove("invalid");
+    clearTimeout(timer);
+    const q = input.value.trim();
+    if (q.length < 3) { close(); return; }
+    timer = setTimeout(async () => {
+      if (ctrl) ctrl.abort();
+      ctrl = new AbortController();
+      try { items = await searchPlaces(q, 6, ctrl.signal); }
+      catch (e) { if (e.name !== "AbortError") close(); return; }   // suggestions are optional: fail quietly
+      if (input.value.trim() === q && document.activeElement === input) render();
+    }, 300);
+  });
+  input.addEventListener("keydown", e => {
+    const open = !list.hidden && items.length;
+    if (e.key === "ArrowDown" && open) { e.preventDefault(); active = (active + 1) % items.length; mark(); }
+    else if (e.key === "ArrowUp" && open) { e.preventDefault(); active = (active - 1 + items.length) % items.length; mark(); }
+    else if (e.key === "Enter") {
+      if (open && active >= 0) { e.preventDefault(); choose(active); }
+      else if (list.hidden) calcBtn.click();
+      else close();
+    }
+    else if (e.key === "Escape") close();
+  });
+  input.addEventListener("blur", close);
+}
+
+/* ---------- Legs ---------- */
+function addLeg(from, to) {
+  const n = ++legCount;
+  const d = document.createElement("div");
+  d.className = "leg";
+  d.innerHTML = `
+    <div class="leg-head"><span class="leg-title">Journey</span><button class="rm" type="button">Remove</button></div>
+    <div class="modes" role="radiogroup" aria-label="Mode of transport">
+      ${MODES.map(([v, t], i) => `<label><input type="radio" name="mode${n}" value="${v}"${i === 0 ? " checked" : ""}><span>${t}</span></label>`).join("")}
+    </div>
+    <div class="places">
+      <div class="field"><label>From (address, place or airport)</label><input type="text" class="from" placeholder="e.g. Sea Point, Cape Town" value="${esc(from || "")}"></div>
+      <div class="field"><label>To (address, place or airport)</label><input type="text" class="to" placeholder="e.g. Harare International Airport" value="${esc(to || "")}"></div>
+    </div>
+    <div class="result"></div>`;
+  d.querySelector(".rm").onclick = () => { d.remove(); renumber(); };
+  legsEl.appendChild(d);
+  attachSuggest(d.querySelector(".from")); attachSuggest(d.querySelector(".to"));
+  renumber();
+  return d;
+}
+
+function renumber() {
+  const legs = [...legsEl.children];
+  legs.forEach((d, i) => {
+    d.querySelector(".leg-title").textContent = "Journey " + (i + 1);
+    d.querySelector(".rm").style.visibility = legs.length > 1 ? "visible" : "hidden";
+  });
+}
+
+/* ---------- Geocoding for text that wasn't picked from the suggestions ---------- */
+const geoCache = {};
+let lastNominatim = 0;
+async function geocode(q, which) {
+  if (geoCache[q]) return geoCache[q];
+  const wait = 1100 - (Date.now() - lastNominatim);   // Nominatim allows 1 request per second
+  if (wait > 0) await sleep(wait);
+  lastNominatim = Date.now();
+  const j = await getJson("https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" + encodeURIComponent(q), "the place lookup");
+  if (!j.length) throw new NotFound(q, which);
+  const p = j[0].display_name.split(",").map(s => s.trim());
+  return (geoCache[q] = { lat: +j[0].lat, lon: +j[0].lon, name: p.length > 2 ? `${p[0]}, ${p[p.length - 1]}` : j[0].display_name });
+}
+
+async function resolve(input, which) {
+  if (input.dataset.lat) return { lat: +input.dataset.lat, lon: +input.dataset.lon, name: input.dataset.label, picked: true };
+  return geocode(input.value.trim(), which);
+}
+
+function haversine(a, b) {
+  const R = 6371, rad = x => x * Math.PI / 180;
+  const dLat = rad(b.lat - a.lat), dLon = rad(b.lon - a.lon);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+async function drivingKm(a, b) {
+  const j = await getJson(`https://router.project-osrm.org/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=false`, "the route service", null, true);
+  if (j.code !== "Ok" || !j.routes || !j.routes.length) throw new NoRoute(a.name, b.name);
+  return j.routes[0].distance / 1000;
+}
+
+async function legKm(d) {
+  const mode = d.querySelector("input[type=radio]:checked").value;
+  const a = await resolve(d.querySelector(".from"), "from");
+  const b = await resolve(d.querySelector(".to"), "to");
+  const km = (mode === "air" || mode === "ferry") ? haversine(a, b)
+    : (await drivingKm(a, b)) * (mode === "rail" ? 1.05 : 1);
+  return { km, a, b };
+}
+
+/* ---------- Showing results and errors ---------- */
+function show(out, cls, html) { out.className = "result " + cls; out.innerHTML = html; }
+
+async function showError(d, out, e) {
+  let html;
+  if (e instanceof NotFound) {
+    const input = d.querySelector("." + e.which);
+    input.classList.add("invalid");
+    const role = e.which === "from" ? "starting point" : "destination";
+    const found = await similarPlaces(e.q);
+    html = `<div class="errbox"><div class="et">We couldn't find "${esc(e.q)}" (your ${role}).</div>
+      <div>This usually happens when:</div>
+      <ul><li>the name is misspelled</li>
+      <li>it's very specific, like a house number or a small building. Try the suburb, city or airport name instead</li>
+      <li>the city or country is missing, e.g. "Meikles Hotel, Harare, Zimbabwe"</li></ul>`;
+    html += found.length
+      ? `<div>Did you mean one of these? Tap to use it:</div><div class="chips">${found.map((f, i) =>
+          `<button type="button" class="chip" data-i="${i}">${esc(f.main)}${f.sub ? ` <small>${esc(f.sub)}</small>` : ""}</button>`).join("")}</div>
+         <div>Otherwise, please retype it and calculate again.</div></div>`
+      : `<div>We have no similar places to suggest. Please retype it and calculate again.</div></div>`;
+    show(out, "err", html);
+    out.querySelectorAll(".chip").forEach(b => b.onclick = () => {
+      pickPlace(input, found[+b.dataset.i]);
+      show(out, "busy", '<span class="msg">Using that place. Calculating…</span>');
+      calcBtn.click();
+    });
+    return;
+  }
+  if (e instanceof NoRoute) {
+    html = `<div class="errbox"><div class="et">No driving route found between ${esc(e.a)} and ${esc(e.b)}.</div>
+      <div>This can happen when:</div>
+      <ul><li>the places are separated by sea, or there's no road connecting them</li>
+      <li>one place is off the road network (e.g. an island or a remote spot). Try a nearby town instead</li></ul>
+      <div>If you travelled by air or ferry, switch the mode, or:</div>
+      <div class="chips"><button type="button" class="chip" data-air>Calculate this journey as Air instead</button></div></div>`;
+    show(out, "err", html);
+    out.querySelector("[data-air]").onclick = () => { d.querySelector("input[value=air]").checked = true; calcBtn.click(); };
+    return;
+  }
+  const msg = e instanceof FriendlyError ? e.message : "Something went wrong. Please try again.";
+  show(out, "err", `<div class="errbox"><div class="et">${esc(msg)}</div></div>`);
+}
+
+/* ---------- Buttons ---------- */
+document.getElementById("add").onclick = () => {
+  const prev = legsEl.lastElementChild;
+  const prevTo = prev ? prev.querySelector(".to") : null;
+  const d = addLeg(prevTo ? prevTo.value : "", "");
+  const from = d.querySelector(".from");
+  if (prevTo && prevTo.dataset.lat) pickPlace(from, { value: prevTo.value, lat: +prevTo.dataset.lat, lon: +prevTo.dataset.lon });
+};
+
+calcBtn.onclick = async function () {
+  const btn = this, totalEl = document.getElementById("total");
+  btn.disabled = true; btn.textContent = "Calculating…"; totalEl.style.display = "none";
+  let total = 0, allOk = true;
+  for (const d of legsEl.children) {
+    const out = d.querySelector(".result");
+    const fromEl = d.querySelector(".from"), toEl = d.querySelector(".to");
+    fromEl.classList.remove("invalid"); toEl.classList.remove("invalid");
+    const missing = !fromEl.value.trim() ? fromEl : !toEl.value.trim() ? toEl : null;
+    if (missing) {
+      missing.classList.add("invalid");
+      show(out, "err", `<div class="errbox"><div class="et">${missing === fromEl ? "Enter where this journey started." : "Enter where this journey ended."}</div></div>`);
+      allOk = false; continue;
+    }
+    show(out, "busy", '<span class="msg">Working…</span>');
+    try {
+      const r = await legKm(d);
+      const km = Math.round(r.km);
+      total += km;
+      show(out, "", `<span class="km">${km.toLocaleString("en")} <small>km</small></span><span class="msg">one-way. Enter this in the survey.</span>`);
+      const cb = document.createElement("button");
+      cb.type = "button"; cb.className = "copy"; cb.textContent = "Copy";
+      cb.onclick = async () => {
+        try { await navigator.clipboard.writeText(String(km)); cb.textContent = "Copied"; }
+        catch (e) { cb.textContent = "Select " + km; }
+      };
+      out.appendChild(cb);
+      const m = document.createElement("span");
+      m.className = "matched";
+      let txt = `Matched: ${r.a.name} → ${r.b.name}.`;
+      if (r.km < 0.5) txt += " These two places matched the same spot. If they're different, add more detail (city, country).";
+      else if (!(r.a.picked && r.b.picked)) txt += " Wrong place? Pick one from the suggestions as you type.";
+      m.textContent = txt;
+      out.appendChild(m);
+    } catch (e) { await showError(d, out, e); allOk = false; }
+  }
+  if (total && legsEl.children.length > 1) {
+    totalEl.innerHTML = `<span>Total one-way${allOk ? "" : " (completed only)"}</span><span class="big">${total.toLocaleString("en")} km</span>`;
+    totalEl.style.display = "flex";
+  }
+  btn.disabled = false; btn.textContent = "Calculate distances";
+};
+
+const q = new URLSearchParams(location.search);
+if (q.has("embed")) document.body.classList.add("embed");
+if (q.has("panel")) document.body.classList.add("panel");
+addLeg("", VENUE_DEFAULT);
+</script>
+</body>
+</html>
