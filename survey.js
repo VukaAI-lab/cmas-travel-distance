@@ -63,7 +63,7 @@
   function openCalc(box, input, ctx) {
     document.querySelectorAll(".calcbox").forEach(b => { if (b !== box) { b.hidden = true; } });
     if (!calcFrame) {
-      calcFrame = el("iframe", { title: "Travel distance calculator", src: "calculator.html?embed=1&pick=1&v=8", class: "calcframe" });
+      calcFrame = el("iframe", { title: "Travel distance calculator", src: "calculator.html?embed=1&pick=1&v=9", class: "calcframe" });
       calcFrame.style.height = "340px";
     }
     box.hidden = false;
@@ -79,7 +79,7 @@
     const m = e.data || {};
     if (calcFrame && e.source === calcFrame.contentWindow) {
       if (m.type === "cmas-ready") { calcReady = true; if (pendingPrefill) calcFrame.contentWindow.postMessage(pendingPrefill, location.origin); }
-      else if (m.type === "cmas-height") calcFrame.style.height = Math.max(300, Math.min(900, m.height + 4)) + "px";
+      else if (m.type === "cmas-height") calcFrame.style.height = Math.max(230, Math.min(900, m.height + 6)) + "px";
       else if (m.type === "cmas-distance" && calcTarget) {
         calcTarget.value = String(m.km); calcTarget.dispatchEvent(new Event("input", { bubbles: true }));
         closeCalc(); calcTarget.focus();

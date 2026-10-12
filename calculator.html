@@ -443,7 +443,10 @@ if (window.parent !== window) {
   // tell the survey how tall we are so it can size the frame
   let lastH = 0;
   setInterval(() => {
-    const h = document.documentElement.scrollHeight;
+    // measure the content itself (the page's own height never shrinks below the frame), plus any open suggestion list
+    let h = document.querySelector("main").getBoundingClientRect().bottom + window.scrollY;
+    document.querySelectorAll(".sugg:not([hidden])").forEach(s => { h = Math.max(h, s.getBoundingClientRect().bottom + window.scrollY + 8); });
+    h = Math.ceil(h);
     if (h !== lastH) { lastH = h; parent.postMessage({ type: "cmas-height", height: h }, location.origin); }
   }, 300);
   parent.postMessage({ type: "cmas-ready" }, location.origin);
