@@ -92,6 +92,18 @@
   .embed h1, .embed .lead, .embed #add, .embed #total, .embed .about, .embed .rm, .embed .leg-head { display:none; }
   .embed .leg { margin:0 0 8px; }
 
+  /* Several trips added up (the survey's "how far each day" question): ?embed=1&pick=1&multi=1 */
+  .rt, .mnote { display:none; }
+  .multi .mnote { display:block; margin:0 0 10px; font-size:13px; color:var(--muted); }
+  .multi .rt { display:flex; align-items:center; gap:8px; margin:0 0 10px; font-size:13px; cursor:pointer; }
+  .rt input { width:18px; height:18px; margin:0; accent-color:var(--accent); }
+  .embed.multi #add { display:inline-block; }
+  .embed.multi .leg-head { display:flex; }
+  .embed.multi .rm { display:inline; }
+  body.pick.multi .leg button.use { display:none; }
+  .total { flex-wrap:wrap; gap:8px; }
+  .total .use { flex-basis:100%; }
+
   /* Used by the survey form: ?embed=1&pick=1 adds a "Use this distance" button and listens for prefill messages */
   button.use { padding:6px 12px; font-size:13px; font-weight:600; }
   body.pick button.copy { display:none; }
@@ -102,6 +114,8 @@
   <h1>Travel distance calculator</h1>
   <p class="lead">Type where each journey started and ended, then pick from the suggestions. <strong>One-way distances only.</strong> For a return trip, don't double it.</p>
 
+  <p class="mnote">Add each trip of a typical day, then we'll add them up.</p>
+  <label class="rt"><input type="checkbox" id="rt" checked> Count each trip there and back (×2)</label>
   <div id="legs"></div>
 
   <p class="tip">Start typing and choose a suggestion for the most accurate result. You don't need your exact home address: your suburb or nearest landmark is accurate enough.</p>
@@ -411,18 +425,36 @@ calcBtn.onclick = async function () {
       out.appendChild(m);
     } catch (e) { await showError(d, out, e); allOk = false; }
   }
-  if (total && legsEl.children.length > 1) {
-    totalEl.innerHTML = `<span>Total one-way${allOk ? "" : " (completed only)"}</span><span class="big">${total.toLocaleString("en")} km</span>`;
-    totalEl.style.display = "flex";
-  }
+  lastTotal = total; lastAllOk = allOk; renderTotal();
   btn.disabled = false; btn.textContent = "Calculate distances";
 };
+
+// the total line: one-way sum normally; in "several trips" mode, the whole day (optionally there and back)
+let lastTotal = 0, lastAllOk = true, MULTI = false;
+function setMulti(on) { MULTI = !!on; document.body.classList.toggle("multi", MULTI); }
+function renderTotal() {
+  const totalEl = document.getElementById("total");
+  if (!(lastTotal && (legsEl.children.length > 1 || MULTI))) { totalEl.style.display = "none"; return; }
+  const factor = MULTI && document.getElementById("rt").checked ? 2 : 1;
+  const shown = Math.round(lastTotal * factor);
+  const label = MULTI ? `Total for the day${factor === 2 ? " (there and back)" : ""}` : "Total one-way";
+  totalEl.innerHTML = `<span>${label}${lastAllOk ? "" : " (completed only)"}</span><span class="big">${shown.toLocaleString("en")} km</span>`;
+  totalEl.style.display = "flex";
+  if (MULTI && PICK && window.parent !== window) {
+    const ub = document.createElement("button");
+    ub.type = "button"; ub.className = "use"; ub.textContent = `Use ${shown.toLocaleString("en")} km in the survey`;
+    ub.onclick = () => parent.postMessage({ type: "cmas-distance", km: shown }, location.origin);
+    totalEl.appendChild(ub);
+  }
+}
+document.getElementById("rt").addEventListener("change", renderTotal);
 
 const q = new URLSearchParams(location.search);
 if (q.has("embed")) document.body.classList.add("embed");
 if (q.has("panel")) document.body.classList.add("panel");
 const PICK = q.has("pick");
 if (PICK) document.body.classList.add("pick");
+if (q.has("multi")) setMulti(true);
 addLeg("", VENUE_DEFAULT);
 
 /* Survey form hooks (only active when this page is inside the survey) */
@@ -431,13 +463,15 @@ if (window.parent !== window) {
   window.addEventListener("message", e => {
     const m = e.data || {};
     if (e.source !== parent || m.type !== "cmas-prefill") return;
+    setMulti(m.multi);
+    [...legsEl.children].slice(1).forEach(x => x.remove()); renumber();
     const d = legsEl.firstElementChild;
     for (const [sel, v] of [[".from", m.from], [".to", m.to]]) {
       const i = d.querySelector(sel); i.value = v || ""; clearPick(i); i.classList.remove("invalid");
     }
     const r = d.querySelector(`input[value=${m.mode || "vehicle"}]`); if (r) r.checked = true;
     show(d.querySelector(".result"), "", ""); d.querySelector(".result").className = "result";
-    document.getElementById("total").style.display = "none";
+    lastTotal = 0; renderTotal();
     if (m.from && m.to) calcBtn.click(); else (m.from ? d.querySelector(".to") : d.querySelector(".from")).focus();
   });
   // tell the survey how tall we are so it can size the frame

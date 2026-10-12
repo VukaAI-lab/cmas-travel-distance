@@ -40,7 +40,9 @@
     { re: /^Accommodation → Kigali Convention Centre: distance/, from: "", to: KCC },
     { re: /^Kigali Convention Centre → home: distance/, from: KCC, to: "@home" },
     { re: /^Accommodation → Kigali International Airport: distance/, from: "", to: KGL },
-    { re: /^Final airport → home: distance/, from: "", to: "@home" }
+    { re: /^Final airport → home: distance/, from: "", to: "@home" },
+    // several trips in one day, added up there-and-back by the calculator; the "main way" question comes right after
+    { re: /^Roughly how far each day/, from: "", to: "", multi: true, modeAfter: true }
   ];
   const homeText = () => {
     const c = findItem(/^City you're travelling from/), k = findItem(/^Country you're travelling from/);
@@ -53,9 +55,10 @@
     if (!spec || item.type !== "number") return null;
     const sub = t => t === "@home" ? homeText() : t;
     let mode = spec.air ? "air" : "vehicle";
-    const prev = page.items[idx - 1];
-    if (!spec.air && prev && prev.type === "radio") mode = modeFromAnswer(answers[prev.entry]);
-    return { from: sub(spec.from || ""), to: sub(spec.to || ""), mode };
+    const prev = page.items[idx - 1], after = page.items[idx + 1];
+    if (spec.modeAfter) { if (after && after.type === "radio" && answers[after.entry]) mode = modeFromAnswer(answers[after.entry]); }
+    else if (!spec.air && prev && prev.type === "radio") mode = modeFromAnswer(answers[prev.entry]);
+    return { from: sub(spec.from || ""), to: sub(spec.to || ""), mode, multi: !!spec.multi };
   }
 
   /* One calculator frame, moved under whichever question asked for it */
@@ -63,7 +66,7 @@
   function openCalc(box, input, ctx) {
     document.querySelectorAll(".calcbox").forEach(b => { if (b !== box) { b.hidden = true; } });
     if (!calcFrame) {
-      calcFrame = el("iframe", { title: "Travel distance calculator", src: "calculator.html?embed=1&pick=1&v=9", class: "calcframe" });
+      calcFrame = el("iframe", { title: "Travel distance calculator", src: "calculator.html?embed=1&pick=1&v=10", class: "calcframe" });
       calcFrame.style.height = "340px";
     }
     box.hidden = false;
