@@ -1,6 +1,6 @@
 # Travel Distance Calculator
 
-A small web tool that lets event delegates work out how far they travelled, so they don't have to calculate distances themselves. Built for the **Carbon Markets Africa Summit 2026 carbon footprint survey** (run on Cognito Forms), and reusable for any event.
+A small web tool that lets event delegates work out how far they travelled, so they don't have to calculate distances themselves. Built for the **Carbon Markets Africa Summit 2026 carbon footprint survey** (a Google Form), and reusable for any event.
 
 **Live survey page (form + calculator):** https://vukaai-lab.github.io/cmas-travel-distance/
 
@@ -8,7 +8,7 @@ Hosting this on your own domain? See [HOSTING.md](HOSTING.md).
 
 ## What delegates see
 
-The survey page shows the Cognito survey with the distance calculator beside it (on a phone, the calculator opens from a floating "Distance calculator" button).
+The survey page shows the Google Form (Delegate Travel Survey) with the distance calculator beside it, under the Carbon Markets Africa header and footer (on a phone, the calculator opens from a floating "Distance calculator" button).
 
 1. Type where each journey **starts** and **ends** (an address, place, hotel or airport) and pick the match from the suggestions that appear as you type.
 2. Choose the mode of transport: Air, Rail, Vehicle or Ferry.
@@ -46,29 +46,24 @@ Limitations:
 
 | File | Purpose |
 |---|---|
-| `index.html` | **The survey page**: the Cognito form with the calculator alongside. This is the page to open and share. |
+| `index.html` | **The survey page**: the Google Form with the calculator alongside, branded like the Carbon Markets Africa website. This is the page to open and share. |
+| `cognito.html` | The previous version of the survey page, using the Cognito form. Kept as a backup. |
 | `calculator.html` | The calculator on its own. Modes: default, `?panel=1` (used inside `index.html`), `?embed=1` (compact single journey) |
 | `guide.html` | A generic user guide for the survey and calculator |
-| `survey.html` | Old address of the survey page; redirects to `index.html` |
+| `survey.html`, `survey-google.html` | Old addresses of the survey page; both redirect to `index.html` |
 | `HOSTING.md` | Notes for hosting on another domain |
 
 Everything is static HTML, CSS and JavaScript with no build step and relative links, so the folder can be uploaded to any web host or sub-folder.
 
-## Using it with the Cognito survey
+## Using it with the Google Form
 
-`index.html` embeds the live Cognito form (using Cognito's official embed script). Submissions go to the same Cognito form and entries as the original link. The form's title is added by this page, because Cognito's embed doesn't include it. If the survey is renamed in Cognito, update the heading in `index.html` too.
+`index.html` embeds the Google Form with Google's own embed address (`.../viewform?embedded=true`) in a frame that scrolls inside the page. Submissions go to the same Google Form and responses as the direct link. The form is styled by Google; only its position and the surrounding page (header, hero banner, footer) are ours.
 
-The Cognito form ID and public key are in the `<script>` tag in `index.html`. To reuse the page for another Cognito form, replace `data-form`, `data-key` and the heading (Cognito: Share, then Embed).
+To reuse the page for another Google Form, replace the `src` of the `#survey` frame in `index.html` (Google Forms: Send, then the `<>` embed tab) and the heading in the banner.
 
-**Inline option (needs Cognito editor access):** `calculator.html?embed=1` is a compact single-journey version. Add it in a Cognito Content field under the distance question, with the full address of where this page is hosted:
+**Branding:** the header, banner and footer copy the look of the Carbon Markets Africa website, and load its logo and photos from `carbonmarketsafrica.com`. When `index.html` is shown inside another website's page (in a frame), it detects that and hides its own header, banner and footer so they aren't repeated.
 
-```html
-<details><summary><strong>Not sure of the distance? Calculate it here</strong></summary>
-<iframe src="https://YOUR-DOMAIN/PATH/calculator.html?embed=1" style="width:100%;height:420px;border:0" title="Distance calculator"></iframe>
-</details>
-```
-
-This is untested: it depends on Cognito keeping the iframe in a Content field.
+**Previous version:** `cognito.html` is the earlier page that embedded a Cognito form (kept as a backup). It uses Cognito's embed script, and the calculator's compact `calculator.html?embed=1` mode can be pasted into a Cognito Content field under a question, if someone has editor access.
 
 ## Configuration
 
