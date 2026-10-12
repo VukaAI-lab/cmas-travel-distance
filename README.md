@@ -1,23 +1,17 @@
-# Travel Distance Calculator
+# Travel Distance Calculator and Delegate Travel Survey
 
-A small web tool that lets event delegates work out how far they travelled, so they don't have to calculate distances themselves. Built for the **Carbon Markets Africa Summit 2026 carbon footprint survey** (a Google Form), and reusable for any event.
+A mobile-friendly survey page for the **Carbon Markets Africa Summit 2026 Delegate Travel Survey**, with a built-in distance calculator so delegates don't have to work out distances themselves. Reusable for other events.
 
-**Live survey page (form + calculator):** https://vukaai-lab.github.io/cmas-travel-distance/
+**Live survey page:** https://vukaai-lab.github.io/cmas-travel-distance/
 
 Hosting this on your own domain? See [HOSTING.md](HOSTING.md).
 
-## What delegates see
+## How it fits together
 
-The survey page shows the Google Form (Delegate Travel Survey) with the distance calculator beside it, under the Carbon Markets Africa header and footer (on a phone, the calculator opens from a floating "Distance calculator" button).
-
-1. Type where each journey **starts** and **ends** (an address, place, hotel or airport) and pick the match from the suggestions that appear as you type.
-2. Choose the mode of transport: Air, Rail, Vehicle or Ferry.
-3. Click **Calculate distances**. The tool shows the one-way distance in km for each journey, which places it matched, and a total.
-4. Copy the figure into the "One-way distance travelled" field in the survey and submit.
-
-Journeys chain: clicking **Add journey** pre-fills the new journey's "From" with the previous journey's "To".
-
-If a place can't be found, the tool explains why and suggests similar places to tap.
+- The page is **our own form** (`index.html` + `survey.js` + `survey-data.js`). It shows the survey one short page at a time, with the same questions, required fields and branching as the Google Form.
+- When a delegate submits, the answers are **sent to the survey's Google Form**, so they arrive in that form's Responses / Google Sheet for whoever owns the form. Nothing is stored on our side.
+- Under each distance question there is a **"Calculate for me"** button. It opens the calculator in place (`calculator.html`), pre-filled with the delegate's city and the venue where possible and with the transport mode from their earlier answer. "Use ... km in the survey" fills in the box. For the daily-travel question the calculator adds up several trips, there and back.
+- The header, banner and footer copy the look of the Carbon Markets Africa website (their logo and photos load from `carbonmarketsafrica.com`). When the page is shown inside another website's page, it hides its own header, banner and footer.
 
 ## How distances are calculated
 
@@ -28,46 +22,45 @@ If a place can't be found, the tool explains why and suggests similar places to 
 | Vehicle | Driving route distance |
 | Rail | Estimated as the driving distance plus 5%, since there is no free rail routing |
 
-All distances are **one-way**, matching the survey question. They are estimates for carbon footprint reporting, not navigation.
+Distances are one-way unless the question asks otherwise. They are estimates for carbon footprint reporting, not navigation.
 
 ## Data sources
 
-No map or place data is stored in this project. The page calls these free public services from the visitor's browser:
+The page calls these free public services from the visitor's browser:
 
-- **[Photon](https://photon.komoot.io/)** (built on OpenStreetMap data) provides the as-you-type place suggestions. A picked suggestion carries its own coordinates, which is the most accurate path.
+- **Google Forms** (`docs.google.com`) receives the survey answers.
+- **[Photon](https://photon.komoot.io/)** (OpenStreetMap data) provides the as-you-type place suggestions. A picked suggestion carries its own coordinates.
 - **[Nominatim (OpenStreetMap)](https://nominatim.org/)** turns place names that were typed but not picked into coordinates.
 - **[OSRM](https://project-osrm.org/)** (public demo server) returns driving distances.
 
-Limitations:
-- These are shared, rate-limited services with no uptime guarantee. Fine for a few hundred delegates; for heavier or standing use, switch to a paid provider such as Google Maps or Mapbox.
-- Very specific street addresses in small towns may not be found. "City, Country" works best.
+The map services are shared and rate-limited, with no uptime guarantee. That is fine for a few hundred delegates; for heavier use, switch to a paid provider.
 
 ## Files
 
 | File | Purpose |
 |---|---|
-| `index.html` | **The survey page**: the Google Form with the calculator alongside, branded like the Carbon Markets Africa website. This is the page to open and share. |
-| `cognito.html` | The previous version of the survey page, using the Cognito form. Kept as a backup. |
-| `calculator.html` | The calculator on its own. Modes: default, `?panel=1` (used inside `index.html`), `?embed=1` (compact single journey) |
-| `guide.html` | A generic user guide for the survey and calculator |
-| `survey.html`, `survey-google.html` | Old addresses of the survey page; both redirect to `index.html` |
+| `index.html` | **The survey page** (layout, branding, styling). Open and share this. |
+| `survey.js` | The survey engine: pages, branching, checks, sending the answers, calculator hooks |
+| `survey-data.js` | The questions, Google field ids, options and branching, **generated from the Google Form** |
+| `calculator.html` | The calculator. Modes: default, `?embed=1&pick=1` (inside the survey), `&multi=1` (several trips added up), `?panel=1` (older side panel) |
+| `guide.html` | A generic user guide |
 | `HOSTING.md` | Notes for hosting on another domain |
+| `survey.html`, `survey-form.html`, `survey-google.html` | Old addresses; redirect to `index.html` |
+| `google-embed.html` | The previous version, which showed the Google Form in a frame (backup) |
+| `cognito.html` | The version from before that, using a Cognito form (backup) |
 
-Everything is static HTML, CSS and JavaScript with no build step and relative links, so the folder can be uploaded to any web host or sub-folder.
+## Keeping it in step with the Google Form
 
-## Using it with the Google Form
+`survey-data.js` is a copy of the Google Form's questions. **If the Google Form is changed (questions added, renamed, removed, or options changed), `survey-data.js` must be regenerated**, otherwise answers can be rejected or land in the wrong place. Add `?dryrun=1` to the page address to see exactly what would be sent without sending anything.
 
-`index.html` embeds the Google Form with Google's own embed address (`.../viewform?embedded=true`) in a frame that scrolls inside the page. Submissions go to the same Google Form and responses as the direct link. The form is styled by Google; only its position and the surrounding page (header, hero banner, footer) are ours.
+## Testing
 
-To reuse the page for another Google Form, replace the `src` of the `#survey` frame in `index.html` (Google Forms: Send, then the `<>` embed tab) and the heading in the banner.
-
-**Branding:** the header, banner and footer copy the look of the Carbon Markets Africa website, and load its logo and photos from `carbonmarketsafrica.com`. When `index.html` is shown inside another website's page (in a frame), it detects that and hides its own header, banner and footer so they aren't repeated.
-
-**Previous version:** `cognito.html` is the earlier page that embedded a Cognito form (kept as a backup). It uses Cognito's embed script, and the calculator's compact `calculator.html?embed=1` mode can be pasted into a Cognito Content field under a question, if someone has editor access.
+- `index.html?dryrun=1` runs the whole survey and shows the answers that would be sent, without sending them.
+- A real submission creates a real response in the Google Form: tell the form owner first, use fake details (e.g. name "TEST DELETE"), and have it deleted afterwards.
 
 ## Configuration
 
-`VENUE_DEFAULT` near the top of the script in `calculator.html` can pre-fill the destination for a specific event. Leave it blank for the general, reusable version.
+`VENUE_DEFAULT` near the top of the script in `calculator.html` can pre-fill a default destination in the stand-alone calculator. The venue names used by the survey (Kigali Convention Centre, Kigali International Airport) are at the top of `survey.js`.
 
 ## Owner
 
