@@ -153,6 +153,7 @@
     const card = el("form", { class: "card", novalidate: true });
     card.addEventListener("submit", e => { e.preventDefault(); next(); });
 
+    if (dryRun) card.append(el("div", { class: "dryban", text: "TEST MODE: nothing will be sent when you submit. Remove ?dryrun=1 from the address to send answers for real." }));
     card.append(el("div", { class: "step", text: "Step " + (history.length + 1) }));
     if (cur === 0) {
       card.append(el("p", { class: "intro", text: F.intro }));
