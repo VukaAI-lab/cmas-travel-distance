@@ -2,7 +2,20 @@
 
 A mobile-friendly survey page for the **Carbon Markets Africa Summit 2026 Delegate Travel Survey**, with a built-in distance calculator so delegates don't have to work out distances themselves. Reusable for other events.
 
-**Live survey page:** https://vukaai-lab.github.io/cmas-travel-distance/
+## Links
+
+| What | Link |
+|---|---|
+| **Live survey (the link delegates use)** | https://carbonmarketsafrica.com/carbon-footprint-survey/ |
+| **GitHub-hosted version (what the live page shows)** | https://vukaai-lab.github.io/cmas-travel-distance/ |
+| GitHub version in test mode (sends nothing) | https://vukaai-lab.github.io/cmas-travel-distance/?dryrun=1 |
+| The calculator on its own | https://vukaai-lab.github.io/cmas-travel-distance/calculator.html |
+| User guide | https://vukaai-lab.github.io/cmas-travel-distance/guide.html |
+| The Google Form that receives the answers | https://docs.google.com/forms/d/e/1FAIpQLScJ_S-6Dh4hIuMLgxfxoDt4w7gUmA2Fyx4hX-aWsYMERSiz0g/viewform |
+
+**How the two survey links relate:** the live page on the Carbon Markets Africa website shows the GitHub-hosted version inside a frame. So the GitHub-hosted version *is* what the live page displays: any change pushed to this repository (`main` branch) appears on the live page within a couple of minutes (browsers may keep an old copy for a few minutes; refresh with Ctrl + F5). To compare them, open both links side by side. The live page adds the Carbon Markets header, banner and footer around it, and the GitHub version shows its own copy of those.
+
+**Status:** the page went live on 12 October 2026 as our own survey form that sends its answers to the Google Form above. Earlier versions are kept as `google-embed.html` and `cognito.html`.
 
 Hosting this on your own domain? See [HOSTING.md](HOSTING.md).
 
