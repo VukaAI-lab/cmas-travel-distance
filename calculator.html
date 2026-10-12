@@ -91,6 +91,10 @@
   .embed main { padding:0; max-width:none; }
   .embed h1, .embed .lead, .embed #add, .embed #total, .embed .about, .embed .rm, .embed .leg-head { display:none; }
   .embed .leg { margin:0 0 8px; }
+
+  /* Used by the survey form: ?embed=1&pick=1 adds a "Use this distance" button and listens for prefill messages */
+  button.use { padding:6px 12px; font-size:13px; font-weight:600; }
+  body.pick button.copy { display:none; }
 </style>
 </head>
 <body>
@@ -392,6 +396,12 @@ calcBtn.onclick = async function () {
         catch (e) { cb.textContent = "Select " + km; }
       };
       out.appendChild(cb);
+      if (PICK && window.parent !== window) {
+        const ub = document.createElement("button");
+        ub.type = "button"; ub.className = "use"; ub.textContent = `Use ${km.toLocaleString("en")} km in the survey`;
+        ub.onclick = () => parent.postMessage({ type: "cmas-distance", km }, location.origin);
+        out.insertBefore(ub, out.querySelector(".msg").nextSibling);
+      }
       const m = document.createElement("span");
       m.className = "matched";
       let txt = `Matched: ${r.a.name} → ${r.b.name}.`;
@@ -411,7 +421,33 @@ calcBtn.onclick = async function () {
 const q = new URLSearchParams(location.search);
 if (q.has("embed")) document.body.classList.add("embed");
 if (q.has("panel")) document.body.classList.add("panel");
+const PICK = q.has("pick");
+if (PICK) document.body.classList.add("pick");
 addLeg("", VENUE_DEFAULT);
+
+/* Survey form hooks (only active when this page is inside the survey) */
+if (window.parent !== window) {
+  // the survey asks us to fill in the places and the mode for the question the person is on
+  window.addEventListener("message", e => {
+    const m = e.data || {};
+    if (e.source !== parent || m.type !== "cmas-prefill") return;
+    const d = legsEl.firstElementChild;
+    for (const [sel, v] of [[".from", m.from], [".to", m.to]]) {
+      const i = d.querySelector(sel); i.value = v || ""; clearPick(i); i.classList.remove("invalid");
+    }
+    const r = d.querySelector(`input[value=${m.mode || "vehicle"}]`); if (r) r.checked = true;
+    show(d.querySelector(".result"), "", ""); d.querySelector(".result").className = "result";
+    document.getElementById("total").style.display = "none";
+    if (m.from && m.to) calcBtn.click(); else (m.from ? d.querySelector(".to") : d.querySelector(".from")).focus();
+  });
+  // tell the survey how tall we are so it can size the frame
+  let lastH = 0;
+  setInterval(() => {
+    const h = document.documentElement.scrollHeight;
+    if (h !== lastH) { lastH = h; parent.postMessage({ type: "cmas-height", height: h }, location.origin); }
+  }, 300);
+  parent.postMessage({ type: "cmas-ready" }, location.origin);
+}
 </script>
 </body>
 </html>
